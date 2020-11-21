@@ -19,6 +19,14 @@ module ActiveRecordReplica
   #     In a non-Rails environment, supply the environment such as
   #     'development', 'production'
   def self.install!(adapter_class = nil, environment = nil)
+
+    begin
+      ActiveRecord::Base.connection.respond_to?(:config)
+    rescue ActiveRecord::NoDatabaseError
+      ActiveRecord::Base.logger.info "ActiveRecordReplica not installed because database not found"
+      return
+    end
+
     replica_config =
       if ActiveRecord::Base.connection.respond_to?(:config)
         ActiveRecord::Base.connection.config[:replica]
